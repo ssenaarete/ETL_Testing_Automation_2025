@@ -5,161 +5,98 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import logging
+import configparser
 import pandas as pd
-from openpyxl import load_workbook
-
+import allure
 from utils.db_helper import DBHelper
 from utils.report_helper import ReportHelper
-from utils.generate_pdf_report import PDFReportGenerator
+from utils.generate_pdf_report import CountCheckPDFGenerator
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
+class CountValidation:
+    def __init__(self, config_path="config.ini"):
+        self.config_path = config_path
+        self.config = configparser.ConfigParser()
+        self.config.read(config_path)
+        self.excel_path = self.config.get("PATHS", "excel_file_path")
 
-class SCDAuditValidation:
-    def __init__(self, config_loader):
-        self.config_loader = config_loader
-        self.db = config_loader.db
-        self.df = config_loader.df   # Excel metadata (table_name, column_name, Business Key, etc.)
-        self.report_helper = config_loader.report_helper
+        self.db_source = DBHelper.from_config_section(config_path, "SOURCEDB")
+        self.db_stage = DBHelper.from_config_section(config_path, "STAGEDB")
+        self.db_target = DBHelper.from_config_section(config_path, "TARGETDB")
 
-    def get_business_keys(self, table_name):
-        if self.df is None or self.df.empty:
-            return []
+        self.db_source.connect()
+        self.db_stage.connect()
+        self.db_target.connect()
 
-        keys = (
-            self.df[(self.df["table_name"].str.lower() == table_name.lower()) &
-                    (self.df["Business Key"].str.upper() == "Y")]
-            ["column_name"]
-            .tolist()
-        )
-        return keys
-
-    def build_business_key_expr(self, business_keys):
-        if not business_keys:
-            return None
-        if len(business_keys) == 1:
-            return business_keys[0]
-        else:
-            return " + '_' + ".join([f"CAST({col} AS NVARCHAR(100))" for col in business_keys])
-
-    def run_for_table(self, table_name):
-        business_keys = self.get_business_keys(table_name)
-
-        if not business_keys:
-            logging.warning(f"No Business Keys found in Excel for table: {table_name}")
-            return []
-
-        bk_expr = self.build_business_key_expr(business_keys)
-        logging.info(f"Business Key expression for {table_name}: {bk_expr}")
-
-        queries = {
-            "Version_Begin_Date Check": f"""
-                SELECT * FROM {table_name}
-                WHERE Version_Begin_Date IS NULL
-                   OR Version_Begin_Date > Load_Timestamp;
-            """,
-            "Single Current Record per Business Key": f"""
-                SELECT {bk_expr} AS BusinessKey, COUNT(*) AS CurrentRecordCount
-                FROM {table_name}
-                WHERE CAST(Is_Current AS NVARCHAR) IN ('1', 'TRUE', 'True', 'true')
-                GROUP BY {bk_expr}
-                HAVING COUNT(*) > 1;
-            """,
-            "Version_End_Date & Is_Current Consistency": f"""
-                SELECT * FROM {table_name}
-                WHERE (
-                        (CAST(Is_Current AS NVARCHAR) IN ('1','TRUE','True','true') AND Version_End_Date IS NULL)
-                    OR (CAST(Is_Current AS NVARCHAR) IN ('0','FALSE','False','false') AND Version_End_Date IS NULL)
-                );
-            """,
-            # "Load_Timestamp Freshness (last 1 day)": f"""
-            #     SELECT * FROM {table_name}
-            #     WHERE Load_Timestamp < DATEADD(DAY, -1, GETDATE());
-            # """,
-            "Historical Version Dates Check": f"""
-                SELECT * FROM {table_name}
-                WHERE Is_Current = 0
-                  AND Version_Begin_Date >= Version_End_Date;
-            """,
-            "Overlapping Versions Check": f"""
-                WITH VersionedData AS (
-                    SELECT 
-                        {bk_expr} AS BusinessKey,
-                        Version_Begin_Date,
-                        ISNULL(Version_End_Date, '9999-12-31') AS Version_End_Date
-                    FROM {table_name}
-                )
-                SELECT a.BusinessKey, 
-                       a.Version_Begin_Date AS Begin_A, a.Version_End_Date AS End_A,
-                       b.Version_Begin_Date AS Begin_B, b.Version_End_Date AS End_B
-                FROM VersionedData a
-                JOIN VersionedData b 
-                  ON a.BusinessKey = b.BusinessKey
-                 AND a.Version_Begin_Date < b.Version_End_Date
-                 AND b.Version_Begin_Date < a.Version_End_Date
-                 AND a.Version_Begin_Date <> b.Version_Begin_Date;
-            """
-        }
-
-        results = []
-        for check_name, query in queries.items():
-            logging.info(f"Running check: {check_name} on {table_name}")
-
-            # ✅ Use raw connection cursor to get column names
-            cursor = self.db.conn.cursor()
-            cursor.execute(query)
-            rows = cursor.fetchall()
-            columns = [col[0] for col in cursor.description]
-            cursor.close()
-            raw_result = [dict(zip(columns, row)) for row in rows]  # convert into dicts
-
-            # raw_result = self.db.execute_query(query)
-            row_count = len(raw_result) #if raw_result else 0
-            is_check_passed = (row_count == 0)
-
-            results.append({
-                "Database": self.db.database,
-                "Table_name": table_name,
-                "Check_name": check_name,
-                "Issue_Count": row_count,
-                "IsCheckPassed": "PASS" if is_check_passed else "FAIL",
-                "Details": raw_result if not is_check_passed else None  # ✅ add raw rows
-            })
-
-            logging.info(f"{check_name} → Issues: {row_count} → {'PASS' if is_check_passed else 'FAIL'}")
-
-        return results
+        self.report_helper = ReportHelper(config_path)
 
     def run(self):
-        if self.df is None or self.df.empty:
-            logging.error("Excel metadata is missing or empty.")
-            return
-
+        df = pd.read_excel(self.excel_path, sheet_name="Table_Mapping", engine="openpyxl")
         results = []
-        unique_tables = self.df["table_name"].dropna().unique()
 
-        for table in unique_tables:
-            logging.info(f"🔍 Starting SCD checks for table: {table}")
-            table_results = self.run_for_table(table)
-            results.extend(table_results)
+        for _, row in df.iterrows():
+            source_table = row["source_table"]
+            stage_table = row["stage_table"]
+            target_table = row["target_table"]
 
-        if results:
-            report_file = self.report_helper.save_report(results, test_type="SCD_Metadata_Validation_Report")
+            source_query = f"SELECT COUNT(*) FROM {source_table}"
+            stage_query = f"SELECT COUNT(*) FROM {stage_table}"
+            target_query = f"SELECT COUNT(*) FROM {target_table}"
 
-            summary_df = pd.DataFrame(results)
-            with pd.ExcelWriter(report_file, engine="openpyxl", mode="w") as writer:
-                # Summary sheet
-                summary_df.drop(columns=["Details"], errors="ignore").to_excel(writer, sheet_name="Summary", index=False)
+            logging.info(f"Getting counts for Source: {source_table}, Stage: {stage_table}, Target: {target_table}")
 
-                # Write details per failed check with proper columns
-                for r in results:
-                    if r.get("Issue_Count", 0) > 0 and r.get("Details") is not None:
-                        details_df = pd.DataFrame(r["Details"])   # ✅ now includes DB column names
-                        if not details_df.empty:
-                            sheet_name = f"{r['Table_name']}_{r['Check_name']}"[:31]
-                            details_df.to_excel(writer, sheet_name=sheet_name, index=False)
+            source_count = self.db_source.execute_query(source_query)
+            stage_count = self.db_stage.execute_query(stage_query)
+            target_count = self.db_target.execute_query(target_query)
 
-            # Still print PDF/console report
-            self.report_helper.print_validation_report_SCD_Metadata_Validation(
-                results, check_type="SCD_Metadata_Validation_Report"
-            )
+            if isinstance(source_count, list) and len(source_count) > 0:
+                source_count = source_count[0][0]
+            if isinstance(stage_count, list) and len(stage_count) > 0:
+                stage_count = stage_count[0][0]
+            if isinstance(target_count, list) and len(target_count) > 0:
+                target_count = target_count[0][0]
+
+            status = "PASS" if (source_count == stage_count == target_count) else "FAIL"
+
+            row_result = {
+                "Source_Table": source_table,
+                "Source_Count": source_count,
+                "Stage_Table": stage_table,
+                "Stage_Count": stage_count,
+                "Target_Table": target_table,
+                "Target_Count": target_count,
+                "status": status
+            }
+            results.append(row_result)
+
+            # ✅ Add Allure reporting step
+            with allure.step(f"Validation for {source_table} → {target_table}"):
+                allure.attach(
+                    str(row_result),
+                    name=f"Counts: {source_table}",
+                    attachment_type=allure.attachment_type.JSON
+                )
+                assert status == "PASS", f"Count mismatch: {row_result}"
+
+            print(f"Source: {source_table}({source_count}), Stage: {stage_table}({stage_count}), Target: {target_table}({target_count})")
+
+        # Save reports
+        self.report_helper.save_report(results, test_type="Count_Check")
+        self.report_helper.print_validation_report_count(results)
+
+        pdf_gen = CountCheckPDFGenerator(output_path="Reports")
+        pdf_path = pdf_gen.generate_count(results)
+        logging.info(f"PDF report saved at: {pdf_path}")
+
+        self.db_source.close()
+        self.db_stage.close()
+        self.db_target.close()
+
+
+# ✅ Pytest wrapper so Allure can pick it up
+@allure.feature("ETL Validation")
+@allure.story("Row Count Validation")
+def test_count_validation():
+    cv = CountValidation("config.ini")
+    cv.run()
