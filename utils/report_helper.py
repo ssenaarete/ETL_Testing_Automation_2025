@@ -13,6 +13,7 @@ class ReportHelper:
         self.output_folder = self.config.get("PATHS ", "report_output_path", fallback="Reports")
         os.makedirs(self.output_folder, exist_ok=True)
 
+
     def save_report(self, data, test_type="Null_Check"):
         try:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -231,6 +232,7 @@ class ReportHelper:
         print("DATATYPE & CONSTRAINT VALIDATION REPORT")
         print("=" * 80)
         print(tabulate(table_data, headers=headers, tablefmt="grid"))
+
 
     def print_validation_report_DataType_Constraints_SourceToStage(self, results, check_type):
         """Pretty print datatype & constraint validation results in terminal."""
