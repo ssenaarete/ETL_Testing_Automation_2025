@@ -17,6 +17,7 @@ from DataType_Constraint_validdation import DataTypeValidation
 from DataType_Constrains_Cross_ENV_validation import DC_Validation_SourceToStage, DC_Validation_SourceToTarget
 from SCD_Metadata_Field_validation import SCDAuditValidation
 from SCD_validation_Cross_ENV import SCD_Validation_SourceToStage, SCD_Validation_StageToTarget
+from Other_validation import OtherValidation
 # from test import CountValidation
 
 print("🔍 Starting ETL Test Automation Suite...\n")
@@ -118,7 +119,14 @@ print("14--Running SCD Validation Cross Environment...")
 try:
     SCD_Validation_StageToTarget("config.ini").run()
 except Exception as e:
-    print(f"❌ Error during SCD Validation Cross Environment: {e}") 
+    print(f"❌ Error during SCD Validation Cross Environment: {e}")
+
+# Running Other Validation
+print("15--Running Other Validation...")
+try:
+    OtherValidation(config_loader).run()
+except Exception as e:
+    print(f"❌ Error during Other Validation: {e}") 
 
 print("\n✅ ETL Test Automation Suite completed successfully!")
 print("📊 Check the generated reports for details.")
