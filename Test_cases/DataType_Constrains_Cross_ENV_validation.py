@@ -82,8 +82,8 @@ class DC_Validation_SourceToStage:
                 })
 
         # ✅ Save & print report
-        self.report_helper.save_report(results, test_type="Source_to_Stage_Check")
-        self.report_helper.print_validation_report_DataType_Constraints_SourceToStage(results, check_type="Source vs Stage")
+        self.report_helper.save_report(results, test_type="DC_Source_to_Stage_Check")
+        self.report_helper.print_validation_report_DataType_Constraints_SourceToStage(results, check_type="DC_Source_vs_Stage")
 
         # ✅ Generate PDF report
         report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
@@ -164,8 +164,8 @@ class DC_Validation_SourceToTarget:
                 })
 
         # ✅ Save & print report
-        self.report_helper.save_report(results, test_type="Source_to_Target_Check")
-        self.report_helper.print_validation_report_DataType_Constraints_SourceToTarget(results, check_type="Source vs Target")
+        self.report_helper.save_report(results, test_type="DC_Source_to_Target_Check")
+        self.report_helper.print_validation_report_DataType_Constraints_SourceToTarget(results, check_type="DC_Source_vs_Target")
 
         # # ✅ Generate PDF report
         # report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")

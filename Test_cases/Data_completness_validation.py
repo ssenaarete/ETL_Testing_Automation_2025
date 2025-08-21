@@ -110,10 +110,10 @@ class Validation_SourceToStage:
         self.report_helper.save_report(results, test_type="Data_Completeness_Check")
         self.report_helper.print_validation_report_Source_to_Stage(results)
 
-        # ✅ Generate PDF report
-        report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
-        pdf_path = report.generate(results, check_type="Data Completeness Check")
-        print(f"PDF report saved at: {pdf_path}")
+        # # ✅ Generate PDF report
+        # report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
+        # pdf_path = report.generate(results, check_type="Data Completeness Check")
+        # print(f"PDF report saved at: {pdf_path}")
 
         # Close DB connections
         self.source_db.close()

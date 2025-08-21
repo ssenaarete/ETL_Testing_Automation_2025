@@ -5,13 +5,13 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import logging
-import configparser
-import pandas as pd
-from tkinter import simpledialog, Tk
-from utils.db_helper import DBHelper
-from utils.excel_helper import ExcelHelper
-from utils.report_helper import ReportHelper
-from utils.generate_pdf_report import PDFReportGenerator
+# import configparser
+# import pandas as pd
+# from tkinter import simpledialog, Tk
+# from utils.db_helper import DBHelper
+# from utils.excel_helper import ExcelHelper
+# from utils.report_helper import ReportHelper
+# from utils.generate_pdf_report import PDFReportGenerator
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -23,16 +23,12 @@ class NullValidation:
         self.report_helper = config_loader.report_helper
 
     def run(self):
-        #df = ExcelHelper.read_test_cases(self.excel_path)
 
         # Use the sheet loaded in __init__ based on selected DB
         df = self.df.copy()
 
         # Filter only Business Key = Y
         df = df[df["Business Key"].str.upper() == "Y"]
-
-        # Group by table and combine all Y columns
-        # grouped = df.groupby("table_name")["column_name"].apply(lambda x: ", ".join(x)).reset_index()
 
 
         def get_scalar(result):
@@ -45,15 +41,6 @@ class NullValidation:
         for _, row in df.iterrows():    
             table = row["table_name"]
             column = row["column_name"]
-            
-            # # Get null query from excel (if available)
-            # null_query_excel = df.loc[df["table_name"] == table, "Null_Check_SQL_query"].dropna().unique()
-
-            # if len(null_query_excel) > 0 and null_query_excel[0].strip():
-            #     null_query = null_query_excel[0]
-            # else:
-            # # Default dynamic null check query
-            #     null_query = f"SELECT COUNT(*) as nullcount FROM {table} WHERE {column} IS NULL"
 
             # Get null query from excel (specific to both table & column)
             null_query_excel = df.loc[
@@ -73,20 +60,6 @@ class NullValidation:
             null_count = get_scalar(raw_result) or 0
             
             logging.debug(f"Raw DB result for {table}.{column}: {null_query!r}")
-
-            # # Calculate null count
-            # if isinstance(raw_result, list) and len(raw_result) > 0:
-            #     # If query returns multiple rows (one per null value), sum up their counts
-            #     # Example: [(value1, 3), (value2, 5)] → total = 8
-            #     try:
-            #         null_count = sum(row[1] for row in raw_result)
-            #     except Exception:
-            #         # If only column values are returned without count
-            #         null_count = len(raw_result)
-            # elif isinstance(raw_result, int):
-            #     null_count = raw_result
-            # else:
-            #     null_count = 0
             
             # ✅ Correctly extract COUNT(*)
             try:
@@ -100,9 +73,7 @@ class NullValidation:
             except Exception as e:
                 logging.error(f"Failed to parse COUNT(*) result for {table}.{column}: {raw_result!r} ({e})")
                 null_count = 0
-            
-            
-            
+                      
             is_check_passed = (null_count == 0)
             
             results.append({

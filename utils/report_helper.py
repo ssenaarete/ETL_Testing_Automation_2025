@@ -243,13 +243,13 @@ class ReportHelper:
                 row.get("Table_Excel", ""),
                 row.get("Column_Excel", ""),
                 row.get("DataType_Source", ""),
-                row.get("Constraint_Source", ""),
                 row.get("DataType_Stage", ""),
+                row.get("Constraint_Source", ""),
                 row.get("Constraint_Stage", ""),
                 row.get("Status","")
             ])
         
-        headers = ["Database_Name", "Table_Name_Excel", "Column_Name_Excel","DataType_Source","Constraint_Source","DataType_Stage",
+        headers = ["Database_Name", "Table_Name_Excel", "Column_Name_Excel","DataType_Source","DataType_Stage","Constraint_Source",
         "Constraint_Stage"]
 
          # ✅ Ensure wide columns (so text like mismatches is fully visible)

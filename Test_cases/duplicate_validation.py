@@ -53,7 +53,7 @@ class DuplicateValidation:
                     GROUP BY {", ".join(columns)}
                     HAVING COUNT(*) > 1
                 """
-                print("DEBUG duplicate_query:", duplicate_query)
+                # print("DEBUG duplicate_query:", duplicate_query)
 
             logging.info(f"Running query for {table} with key [{composite_key}]")
             raw_result = self.db.execute_query(duplicate_query)
