@@ -5,13 +5,6 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import logging
-# import configparser
-# import pandas as pd
-# from tkinter import simpledialog, Tk
-# from utils.db_helper import DBHelper
-# from utils.excel_helper import ExcelHelper
-# from utils.report_helper import ReportHelper
-# from utils.generate_pdf_report import PDFReportGenerator
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
