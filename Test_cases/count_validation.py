@@ -9,8 +9,8 @@ import configparser
 from utils.db_helper import DBHelper
 import pandas as pd
 from utils.report_helper import ReportHelper
-from utils.generate_pdf_report import PDFReportGenerator
-from utils.generate_pdf_report import PDFReportGenerator, CountCheckPDFGenerator
+# from utils.generate_pdf_report import PDFReportGenerator
+# from utils.generate_pdf_report import PDFReportGenerator, CountCheckPDFGenerator
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -78,9 +78,9 @@ class CountValidation:
         self.report_helper.save_report(results, test_type="Count_Check")
         self.report_helper.print_validation_report_count(results)
         
-        pdf_gen = CountCheckPDFGenerator(output_path="Reports")
-        pdf_path = pdf_gen.generate_count(results)
-        logging.info(f"PDF report saved at: {pdf_path}")
+        # pdf_gen = CountCheckPDFGenerator(output_path="Reports")
+        # pdf_path = pdf_gen.generate_count(results)
+        # logging.info(f"PDF report saved at: {pdf_path}")
 
         self.db_source.close()
         self.db_stage.close()

@@ -120,9 +120,9 @@ class NullValidation:
         # self.db.close()
 
         # Generate PDF report
-        report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
-        pdf_path = report.generate(results, check_type="Null")
-        print(f"PDF report saved at: {pdf_path}")
+        # report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
+        # pdf_path = report.generate(results, check_type="Null")
+        # print(f"PDF report saved at: {pdf_path}")
 
 # if __name__ == "__main__":
 #     nv = NullValidation()

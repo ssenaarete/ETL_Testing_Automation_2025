@@ -222,10 +222,10 @@ class Validation_StageToTarget:
         self.report_helper.save_report(results, test_type="Data_Completeness_Check")
         self.report_helper.print_validation_report_Stage_to_Target(results)
 
-        # ✅ Generate PDF report
-        report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
-        pdf_path = report.generate(results, check_type="Data Completeness Check")
-        print(f"PDF report saved at: {pdf_path}")
+        # # ✅ Generate PDF report
+        # report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
+        # pdf_path = report.generate(results, check_type="Data Completeness Check")
+        # print(f"PDF report saved at: {pdf_path}")
 
         # Close DB connections
         self.stage_db.close()

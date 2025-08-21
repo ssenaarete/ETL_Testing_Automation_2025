@@ -77,10 +77,10 @@ class DuplicateValidation:
         self.report_helper.save_report(results, test_type="Duplicate_Check")
         self.report_helper.print_validation_report_Duplicate(results, check_type="Duplicate")
 
-        # Generate PDF report
-        report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
-        pdf_path = report.generate(results, check_type="Duplicate Check")
-        print(f"PDF report saved at: {pdf_path}")
+        # # Generate PDF report
+        # report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
+        # pdf_path = report.generate(results, check_type="Duplicate Check")
+        # print(f"PDF report saved at: {pdf_path}")
 
 # if __name__ == "__main__":
 #     nv = DuplicateValidation()

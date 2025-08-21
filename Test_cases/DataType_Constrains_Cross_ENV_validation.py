@@ -167,10 +167,10 @@ class DC_Validation_SourceToTarget:
         self.report_helper.save_report(results, test_type="Source_to_Target_Check")
         self.report_helper.print_validation_report_DataType_Constraints_SourceToTarget(results, check_type="Source vs Target")
 
-        # ✅ Generate PDF report
-        report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
-        pdf_path = report.generate(results, check_type="Source vs Target Datatype & Constraint Check")
-        print(f"PDF report saved at: {pdf_path}")
+        # # ✅ Generate PDF report
+        # report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
+        # pdf_path = report.generate(results, check_type="Source vs Target Datatype & Constraint Check")
+        # print(f"PDF report saved at: {pdf_path}")
 
         # Close DB connections
         self.source_db.close()

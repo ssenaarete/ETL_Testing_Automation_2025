@@ -106,7 +106,7 @@ class DateFieldValidation:
         else:
             self.report_helper.print_validation_report(results, check_type="Date format")
 
-        # Generate PDF report
-        report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
-        pdf_path = report.generate(results, check_type="Date format")
-        print(f"PDF report saved at: {pdf_path}")
+        # # Generate PDF report
+        # report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
+        # pdf_path = report.generate(results, check_type="Date format")
+        # print(f"PDF report saved at: {pdf_path}")

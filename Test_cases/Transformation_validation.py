@@ -101,10 +101,10 @@ class TransformationValidation:
 
             logging.info(f"Mismatches exported to new worksheet in: {report_file}")
 
-        # Generate PDF report
-        report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
-        pdf_path = report.generate(results, check_type="Transformation_Logic_check")
-        print(f"PDF report saved at: {pdf_path}")
+        # # Generate PDF report
+        # report = PDFReportGenerator(config_path="config.ini", font_path="DejaVuSans.ttf")
+        # pdf_path = report.generate(results, check_type="Transformation_Logic_check")
+        # print(f"PDF report saved at: {pdf_path}")
 
         # Close connections
         self.db_source.close()
