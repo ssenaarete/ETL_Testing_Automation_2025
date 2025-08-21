@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 # -------------------------------------------------------
 # Source to Stage Data SCD Validation
 # -------------------------------------------------------
-class Validation_SourceToStage:
+class SCD_Validation_SourceToStage:
     def __init__(self, config_path="config.ini"):
         self.config_path = config_path
         self.config = configparser.ConfigParser()
@@ -92,7 +92,7 @@ class Validation_SourceToStage:
                     EXCEPT
                     SELECT {common_columns}
                     FROM {self.config.get("STAGEDB", "database")}.dbo.{stage_table}
-                    WHERE Is_Current='TRUE'
+                    WHERE Is_Current='TRUE' OR Is_Current='1'
                 ) AS diff
             """
  
@@ -134,7 +134,7 @@ if __name__ == "__main__":
 # -------------------------------------------------------
 # Stage to Target Data SCD Validation
 # -------------------------------------------------------
-class Validation_StageToTarget:
+class SCD_Validation_StageToTarget:
     def __init__(self, config_path="config.ini"):
         self.config_path = config_path
         self.config = configparser.ConfigParser()
@@ -206,11 +206,11 @@ class Validation_StageToTarget:
                 FROM (
                     SELECT {common_columns}
                     FROM {self.config.get("STAGEDB", "database")}.dbo.{stage_table}
-                    WHERE Is_Current='TRUE'
+                    WHERE Is_Current='TRUE' OR Is_Current='1'
                     EXCEPT
                     SELECT {common_columns}
                     FROM {self.config.get("TARGETDB", "database")}.dbo.{target_table}
-                    WHERE Is_Current='TRUE'
+                    WHERE Is_Current='TRUE' OR Is_Current='1'
                 ) AS diff
             """
  

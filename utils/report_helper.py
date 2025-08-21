@@ -246,8 +246,6 @@ class ReportHelper:
                 row.get("Constraint_Source", ""),
                 row.get("DataType_Stage", ""),
                 row.get("Constraint_Stage", ""),
-                # row.get("Constraint_DB", ""),
-                # row.get("Constraint_Status", ""),
                 row.get("Status","")
             ])
         

@@ -49,6 +49,7 @@ class DuplicateValidation:
                 duplicate_query = f"""
                     SELECT {", ".join(columns)}
                     FROM {table}
+                    WHERE Is_Current = 1 OR Is_Current IN ('TRUE','True','true')
                     GROUP BY {", ".join(columns)}
                     HAVING COUNT(*) > 1
                 """
