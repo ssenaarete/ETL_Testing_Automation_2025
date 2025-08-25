@@ -79,8 +79,8 @@ class NullValidation:
             logging.info(f"{table}.{column} → Null count: {null_count} → {'PASS' if is_check_passed else 'FAIL'}")
             print(f"{table}.{column} → Null Count:", null_count)
 
-        self.report_helper.save_report(results,test_type="Null")
-        self.report_helper.print_validation_report_Null(results, check_type="Null")
+        self.report_helper.save_report(results,test_type="Null_Check")
+        self.report_helper.print_validation_report_Null(results, check_type="Null_Check")
         # self.db.close()
 
         # Generate PDF report

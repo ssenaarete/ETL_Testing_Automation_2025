@@ -128,5 +128,12 @@ try:
 except Exception as e:
     print(f"❌ Error during Other Validation: {e}") 
 
+# Running Garbage Value Validation
+print("16--Running Garbage Value Validation...")
+try:
+    GarbageValueValidation(config_loader).run()
+except Exception as e:
+    print(f"❌ Error during Garbage Value Validation: {e}")
+
 print("\n✅ ETL Test Automation Suite completed successfully!")
 print("📊 Check the generated reports for details.")

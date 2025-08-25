@@ -308,3 +308,25 @@ class ReportHelper:
         print("SCD METADATA VALIDATION REPORT")
         print("=" * 80)
         print(tabulate(table_data, headers=headers, tablefmt="grid"))
+
+
+    def print_validation_report_GarbageVlueValidation(self, results, check_type):
+        """Pretty print Garbage value validation results in terminal."""
+        table_data = []
+        for row in results:
+            table_data.append([
+                row.get("Database", ""),
+                row.get("Table", ""),
+                row.get("Column", ""),
+                row.get("GARBAGE_VALUE_Count"),
+                row.get("Status")
+            ])
+        
+        headers = ["Database_Name", "Table_Name_Excel","Column","GARBAGE_VALUE_Count", "Status"]
+
+         # ✅ Ensure wide columns (so text like mismatches is fully visible)
+        tabulate.PRESERVE_WHITESPACE = True
+        print("\n" + "=" * 80)
+        print("GARBAGE VALUE VALIDATION REPORT")
+        print("=" * 80)
+        print(tabulate(table_data, headers=headers, tablefmt="grid"))
