@@ -1,10 +1,5 @@
-import sys
-import os
-
-# Add project root to sys.path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 import logging
+import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -14,6 +9,9 @@ class NullValidation:
         self.db = config_loader.db
         self.df = config_loader.df
         self.report_helper = config_loader.report_helper
+        # self.report_helper = report_helper
+
+ 
 
     def run(self):
 
@@ -30,6 +28,8 @@ class NullValidation:
 
        
         results = []
+        failed_checks = []
+
         # for _, row in grouped.iterrows():
         for _, row in df.iterrows():    
             table = row["table_name"]
@@ -76,8 +76,15 @@ class NullValidation:
                 "Null_Count": null_count,
                 "IsCheckPassed": is_check_passed
             })
+
+            if not is_check_passed:
+                failed_checks.append(f"{table}.{column} → Null count: {null_count}")
+
             logging.info(f"{table}.{column} → Null count: {null_count} → {'PASS' if is_check_passed else 'FAIL'}")
             print(f"{table}.{column} → Null Count:", null_count)
 
         self.report_helper.save_report(results,test_type="Null_Check")
-        self.report_helper.print_validation_report_Null(results, check_type="Null_Check")
+        # self.report_helper.print_validation_report_Null(results, check_type="Null_Check")
+
+        # ✅ Assert: No failed checks
+        assert not failed_checks, f"Null validation failed for: {failed_checks}"
