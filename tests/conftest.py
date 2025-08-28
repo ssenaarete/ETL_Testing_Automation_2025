@@ -1,5 +1,7 @@
 import pytest
 import configparser
+import allure
+from datetime import datetime
 from utils.db_helper import DBHelper
 from utils.config_loader import ConfigLoader
 from utils.report_helper import ReportHelper
@@ -25,6 +27,7 @@ def pytest_collection_modifyitems(config, items):
 def db_name(request):
     return request.config.getoption("--db").upper()
 
+#---------------------------------------------------------------------------------------------
 
 @pytest.fixture(scope="session")
 def config_loader(request):
@@ -83,3 +86,12 @@ def excel_data():
 def report_helper():
     """Provide ReportHelper instance"""
     return ReportHelper(config_path="config.ini")
+
+#---------------------------------------------------------------------------------------------
+
+# @pytest.fixture(scope="session", autouse=True)
+# def allure_metadata():
+#     allure.dynamic.label("framework", "ETL Test Automation Framework")
+#     allure.dynamic.label("executed_by", "Surojit Sen")
+#     allure.dynamic.label("executed_on", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+#     yield
