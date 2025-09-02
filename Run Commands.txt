@@ -10,9 +10,13 @@ pytest tests/test_duplicate_validation.py::test_Duplicate_validation --db=SOURCE
 
 pytest tests/test_scd_metadata_validation.py::test_scd_metadata_field_validation --db=SOURCEDB
 
+pytest -s tests/test_scd_metadata_validation.py::test_scd_metadata_field_validation --db=SOURCEDB
+
 pytest tests/test_scd_validation_cross_env.py::test_scd_StoS_validation --db=SOURCEDB
 
-pytest tests/test_datatype_constraints_cross_env_validation.py::test_dc_SourceToStage_Validation --db=SOURCEDB
+pytest tests/test_datatype_constraints_validation.py::test_Datatype_constraint_validation --db=SOURCEDB
+
+pytest tests/test_transformation_validation.py::test_transformation_sourceTotarget_validation --db=SOURCEDB
 
 
 --For all validations
@@ -42,6 +46,6 @@ allure serve Reports/allure-results
 
 check these points -
 
-- Check with Swapnali whether we can Keep the Other column in the DB sheets instead of test case sheet - 
-- Test cases need to be excel driven means. which test user want to run for that flag can be updated in the excel and code should run accrodingly - Done
+- Can we create the seperate sheet for Other SQL queries
+- Bifurcate the Data constraints and Data Type test case in 2 test cases
 

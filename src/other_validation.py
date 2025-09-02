@@ -63,7 +63,7 @@ class OtherValidation:
             })
 
             if not is_check_passed:
-                failed_checks.append(f"{table}.{column} → Issue count: {issue_count}")
+                failed_checks.append(f"❌ Other Check failed for {table}.{column} → Issue count: {issue_count}")
 
             logging.info(f"{table}.{column} → Issue count: {issue_count} → {'PASS' if is_check_passed else 'FAIL'}")
             print(f"{table}.{column} → Issue Count:", issue_count)

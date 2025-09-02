@@ -25,7 +25,7 @@ class TransformationValidation:
 
     def run(self, source_db, target_db, report_helper):
         # Read queries from SOURCEDB sheet
-        df = pd.read_excel(self.excel_path, sheet_name="SOURCEDB", engine="openpyxl")
+        df = pd.read_excel(self.excel_path, sheet_name="TRANSFORMATION", engine="openpyxl")
 
         # Filter only Is_Transformation = Y
         df = df[df["Is_Transformation"].str.upper() == "Y"]
@@ -59,7 +59,7 @@ class TransformationValidation:
                     mismatch_records.append({
                         "Transformation Name": f"{columns}_Transformation",
                         "Column_Name": columns,
-                        "Key": key,
+                        # "Key": key,
                         "Source_Value": src_val,
                         "Target_Value": "MISSING"
                     })
@@ -68,7 +68,7 @@ class TransformationValidation:
                     mismatch_records.append({
                         "Transformation Name": f"{columns}_Transformation",
                         "Column_Name": columns,
-                        "Key": key,
+                        # "Key": key,
                         "Source_Value": src_val,
                         "Target_Value": tgt_val
                     })
