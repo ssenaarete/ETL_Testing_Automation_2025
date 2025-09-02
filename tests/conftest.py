@@ -5,6 +5,7 @@ from datetime import datetime
 from utils.db_helper import DBHelper
 from utils.config_loader import ConfigLoader
 from utils.report_helper import ReportHelper
+from utils.attach_excel_report_helper import ExcelReportHelper
 
 
 def pytest_addoption(parser):
@@ -95,3 +96,39 @@ def report_helper():
 #     allure.dynamic.label("executed_by", "Surojit Sen")
 #     allure.dynamic.label("executed_on", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 #     yield
+
+#---------------------------------------------------------------------------------------------
+
+
+@pytest.fixture()
+def excel_helper():
+    return ExcelReportHelper()
+
+def _get_excel_path():
+    config = configparser.ConfigParser()
+    config.read("config.ini")
+    try:
+        return config.get("PATHS", "excel_file_path")
+    except Exception:
+        return None
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
+
+    # 🔹 Attach Excel for both pass & fail, but only once (after "call" phase)
+    if rep.when == "call":
+        excel_path = _get_excel_path()
+        if excel_path:
+            excel_helper = item.funcargs.get("excel_helper", None)
+            if excel_helper:
+                try:
+                    # Build readable link name per test
+                    test_name = item.originalname or item.name
+                    pretty_name = test_name.replace("_", " ").title()
+                    link_name = f"{pretty_name} Excel"
+
+                    excel_helper.attach_excel(excel_path, link_name=link_name)
+                except Exception as e:
+                    print(f"⚠️ Could not attach Excel for {item.name}: {e}")

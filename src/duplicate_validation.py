@@ -30,32 +30,32 @@ class DuplicateValidation:
             composite_key = ", ".join(columns)
             print("DEBUG composite_key:", composite_key, type(composite_key))
 
-            # Get duplicate query from excel (if available)
-            duplicate_query_excel = df.loc[df["table_name"] == table, "Duplicate_Check_SQL_query"].dropna().unique()
+            # # Get duplicate query from excel (if available)
+            # duplicate_query_excel = df.loc[df["table_name"] == table, "Duplicate_Check_SQL_query"].dropna().unique()
 
-            if len(duplicate_query_excel) > 0 and duplicate_query_excel[0].strip():
-                duplicate_query = duplicate_query_excel[0].strip()
+            # if len(duplicate_query_excel) > 0 and duplicate_query_excel[0].strip():
+            #     duplicate_query = duplicate_query_excel[0].strip()
 
+            # else:
+            #     # ✅ Apply different duplicate logic depending on DB type
+            if self.db_name.upper() == "SOURCEDB":
+                # No Is_Current filter for source
+                duplicate_query = f"""
+                    SELECT {", ".join(columns)}
+                    FROM {table}
+                    GROUP BY {", ".join(columns)}
+                    HAVING COUNT(*) > 1
+                """    
+                            
             else:
-                # ✅ Apply different duplicate logic depending on DB type
-                if self.db_name.upper() == "SOURCEDB":
-                    # No Is_Current filter for source
-                    duplicate_query = f"""
-                        SELECT {", ".join(columns)}
-                        FROM {table}
-                        GROUP BY {", ".join(columns)}
-                        HAVING COUNT(*) > 1
-                    """    
-                                
-                else:
-                    # Default dynamic duplicate check query → returns duplicate groups
-                    duplicate_query = f"""
-                        SELECT {", ".join(columns)}
-                        FROM {table}
-                        WHERE CAST(Is_Current AS NVARCHAR) IN ('1', 'TRUE', 'True', 'true')
-                        GROUP BY {", ".join(columns)}
-                        HAVING COUNT(*) > 1
-                    """
+                # Default dynamic duplicate check query → returns duplicate groups
+                duplicate_query = f"""
+                    SELECT {", ".join(columns)}
+                    FROM {table}
+                    WHERE CAST(Is_Current AS NVARCHAR) IN ('1', 'TRUE', 'True', 'true')
+                    GROUP BY {", ".join(columns)}
+                    HAVING COUNT(*) > 1
+                """
                 # print("DEBUG duplicate_query:", duplicate_query)
 
             logging.info(f"Running query for {table} with key [{composite_key}]")

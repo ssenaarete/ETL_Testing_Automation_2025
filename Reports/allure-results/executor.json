@@ -1,0 +1,10 @@
+{
+  "name": "Local Run",
+  "type": "local",
+  "url": "http://localhost:8080",
+  "buildOrder": "1",
+  "buildName": "ETL Smoke Suite",
+  "buildUrl": "http://localhost:8080/job/etl-tests/1",
+  "reportUrl": "http://localhost:8080/job/etl-tests/1/allure",
+  "reportName": "ETL Smoke Suite"
+}

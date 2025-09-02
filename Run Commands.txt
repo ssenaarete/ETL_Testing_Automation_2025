@@ -4,6 +4,8 @@ pytest --db=SOURCEDB
 -- to run single test case
 pytest tests/test_count_validation.py::test_count_validation --db=SOURCEDB
 
+pytest tests/test_null_validation.py::test_null_validation --db=SOURCEDB
+
 pytest tests/test_duplicate_validation.py::test_Duplicate_validation --db=SOURCEDB
 
 pytest tests/test_scd_metadata_validation.py::test_scd_metadata_field_validation --db=SOURCEDB
@@ -20,13 +22,26 @@ pytest -v tests/test_smoke_suite.py --db SOURCEDB
 --For Allure reports
 pytest --db=SOURCEDB --alluredir=Reports/allure-results
 
+pytest -v tests/test_smoke_suite.py --db SOURCEDB --alluredir=Reports/allure-results
+
+--To create allure reports folder in Reports -
+allure generate reports/allure-results -o reports/allure-report --clean
+
+--To generate allure reports with trends
 allure serve Reports/allure-results
 
 
+--Single Run command
+-- Default for Sourcedb
+./run_tests.ps1
 
+-- For StageDB and TargetDb
+./run_tests.ps1 -db STAGEDB
+
+./run_tests.ps1 -db TARGETDB
 
 check these points -
 
-- Check with Swapnali whether we can Keep the Other column in the DB sheets instead of test case sheet
+- Check with Swapnali whether we can Keep the Other column in the DB sheets instead of test case sheet - 
 - Test cases need to be excel driven means. which test user want to run for that flag can be updated in the excel and code should run accrodingly - Done
 

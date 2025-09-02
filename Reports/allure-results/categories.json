@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Database Errors",
+    "matchedStatuses": ["failed"],
+    "messageRegex": ".*Invalid column name.*"
+  },
+  {
+    "name": "Connection Issues",
+    "matchedStatuses": ["broken"],
+    "messageRegex": ".*timeout.*"
+  },
+  {
+    "name": "ETL Validation Errors",
+    "matchedStatuses": ["failed"],
+    "messageRegex": ".*Row count mismatch.*"
+  },
+  {
+    "name": "Configuration Issues",
+    "matchedStatuses": ["broken"],
+    "messageRegex": ".*config.*"
+  }
+]

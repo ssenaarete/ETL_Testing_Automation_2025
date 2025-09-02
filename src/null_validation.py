@@ -35,17 +35,17 @@ class NullValidation:
             table = row["table_name"]
             column = row["column_name"]
 
-            # Get null query from excel (specific to both table & column)
-            null_query_excel = df.loc[
-                (df["table_name"] == table) & (df["column_name"] == column),
-                "Null_Check_SQL_query"
-            ].dropna().unique()
+            # # Get null query from excel (specific to both table & column)
+            # null_query_excel = df.loc[
+            #     (df["table_name"] == table) & (df["column_name"] == column),
+            #     "Null_Check_SQL_query"
+            # ].dropna().unique()
 
-            if len(null_query_excel) > 0 and str(null_query_excel[0]).strip():
-                null_query = str(null_query_excel[0]).strip()
-            else:
-                # Default dynamic null check query
-                null_query = f"SELECT COUNT(*) as nullcount FROM {table} WHERE {column} IS NULL"
+            # if len(null_query_excel) > 0 and str(null_query_excel[0]).strip():
+            #     null_query = str(null_query_excel[0]).strip()
+            # else:
+            #     # Default dynamic null check query
+            null_query = f"SELECT COUNT(*) as nullcount FROM {table} WHERE {column} IS NULL"
 
             logging.info(f"Running query for {table}.{column}")
             raw_result = self.db.execute_query(null_query)

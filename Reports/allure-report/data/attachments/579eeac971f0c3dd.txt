@@ -1,0 +1,14 @@
+Executing Source Query: SELECT 
+    patient_id,
+    DATEDIFF(YEAR, date_of_birth, '2025-06-06') 
+      - CASE 
+          WHEN (MONTH(date_of_birth) > MONTH('2025-06-06')) 
+               OR (MONTH(date_of_birth) = MONTH('2025-06-06') AND DAY(date_of_birth) > DAY('2025-08-06')) 
+          THEN 1 
+          ELSE 0 
+        END AS age
+FROM [SOURCE_DB].[dbo].[source_patients];
+Executing Target Query:   SELECT  patient_id,age   FROM [TARGET_DB].[dbo].[target_patients]
+Saving report to: Reports\Transformation_Logic_check_20250902_020600.xlsx
+Report saved successfully.
+DEBUG: report_file returned = Reports\Transformation_Logic_check_20250902_020600.xlsx
