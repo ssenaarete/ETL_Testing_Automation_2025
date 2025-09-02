@@ -91,8 +91,8 @@ class DateFieldValidation:
 
                 logging.info(f"{schema}.{table}.{col} → Invalid Count: {len(invalid_dates)}")
 
-                if not invalid_dates:
-                    failed_checks.append(f"{table}.{col} → Invalid count: {invalid_dates}")
+                if invalid_dates:
+                    failed_checks.append(f"❌ Date field check failed for {table}.{col} → Invalid count: {len(invalid_dates)}")
 
         # Save + print reports
         self.report_helper.save_report(results, test_type="Date_Field_Check")

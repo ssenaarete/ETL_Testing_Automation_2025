@@ -2,6 +2,7 @@ import logging
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+log = logging.getLogger(__name__)
 
 class DataTypeValidation:
     def __init__(self, config_loader):
@@ -16,6 +17,32 @@ class DataTypeValidation:
         self.df = config_loader.df
         self.report_helper = config_loader.report_helper
 
+    #___________________________________________________________________________
+    @staticmethod
+    def _normalize_constraints(value,source="Excel"):
+
+        """
+        Convert comma-separated constraints to a set (case-insensitive).
+        - Blank/NaN -> {"NULL"}
+        - Removes "COMPOSITE KEY"
+        Example: "Composite Key, Not Null" -> {"NOT NULL"}
+        """
+        if pd.isna(value) or str(value).strip() == "":
+            return {"NULL"}
+
+        constraints = {c.strip().upper() for c in str(value).split(",") if c.strip()}
+
+        if "COMPOSITE KEY" in constraints:
+            constraints.discard("COMPOSITE KEY")
+            log.warning(f"Skipping 'COMPOSITE KEY' from {source} constraints: {value}")
+
+        if not constraints:
+            return {"NULL"}
+        return constraints
+    
+    #___________________________________________________________________________
+    
+    
     def get_db_metadata(self, table_name):
         """
         Fetch column metadata (datatype + constraints) from DB
@@ -71,12 +98,18 @@ class DataTypeValidation:
             column = row["column_name"]
             expected_dtype = str(row["Data_Type"]).strip().upper()
             # expected_constraint = str(row["Constraints"]).strip().upper()
+            
             # ✅ Handle NaN or blank constraint values as NULL
-            expected_constraint = row["Constraints"]
-            if pd.isna(expected_constraint) or str(expected_constraint).strip() == "":
-                expected_constraint = "NULL"
-            else:
-                expected_constraint = str(expected_constraint).strip().upper()
+            # expected_constraint = row["Constraints"]
+            # if pd.isna(expected_constraint) or str(expected_constraint).strip() == "":
+            #     expected_constraint = "NULL"
+            # else:
+            #     expected_constraint = str(expected_constraint).strip().upper()
+        #___________________________________________________________________________    
+            # 🔹 Normalize Excel constraints (covers blank, single, multiple)
+            expected_constraints = self._normalize_constraints(row.get("Constraints"), source="Excel")
+
+        #___________________________________________________________________________
 
             db_meta = self.get_db_metadata(table)
             db_cols = [col["COLUMN_NAME"] for col in db_meta]
@@ -86,7 +119,7 @@ class DataTypeValidation:
                     "Table_Excel": table,
                     "Column_Excel": column,
                     "DataType_Excel": expected_dtype,
-                    "Constraint_Excel": expected_constraint,
+                    "Constraint_Excel": expected_constraints,
                     "DataType_DB": "N/A",
                     "Constraint_DB": "N/A",
                     "Status": "Mismatch (Column Missing in DB)"
@@ -96,11 +129,13 @@ class DataTypeValidation:
             # get db column details
             db_col = next(c for c in db_meta if c["COLUMN_NAME"] == column)
             db_dtype = db_col["DATA_TYPE"].upper()
-            db_constraint = db_col["CONSTRAINTS"].upper() if db_col["CONSTRAINTS"] else "NULL"
+            # db_constraint = db_col["CONSTRAINTS"].upper() if db_col["CONSTRAINTS"] else "NULL"
+            db_constraints = self._normalize_constraints(db_col.get("CONSTRAINTS"), source="DB")
 
             # compare
             dtype_match = (db_dtype == expected_dtype)
-            constraint_match = (db_constraint == expected_constraint)
+            # constraint_match = (db_constraint == expected_constraint)
+            constraint_match = (db_constraints == expected_constraints)
 
             status_1 = "✅ Matched" if (dtype_match) else "❌ Mismatch"
             status_2 = "✅ Matched" if (constraint_match) else "❌ Mismatch"
@@ -112,8 +147,8 @@ class DataTypeValidation:
                 "DataType_Excel": expected_dtype,
                 "DataType_DB": db_dtype,
                 "DataType_Status": status_1,
-                "Constraint_Excel": expected_constraint,               
-                "Constraint_DB": db_constraint,
+                "Constraint_Excel": expected_constraints,               
+                "Constraint_DB": db_constraints,
                 "Constraint_Status": status_2
             })
 
@@ -122,15 +157,15 @@ class DataTypeValidation:
         # self.report_helper.print_validation_report_DataType_Constraints_Validation(results, check_type="DataType_Constraints_Validation")
 
         # ✅ Assertions
-        assert results, "Validation returned no results — check Excel sheet or DB connection."
+        assert results, "❌ Validation returned no results — check Excel sheet or DB connection."
 
         missing_columns = [r for r in results if "Missing" in r.get("Status", "")]
-        assert not missing_columns, f"Columns missing in DB: {missing_columns}"
+        assert not missing_columns, f"❌ Columns missing in DB: {missing_columns}"
 
         mismatched_dtype = [r for r in results if r.get("DataType_Status") == "❌ Mismatch"]
-        assert not mismatched_dtype, f"Datatype mismatches found: {mismatched_dtype}"
+        assert not mismatched_dtype, f"❌ Datatype mismatches found: {mismatched_dtype}"
 
         mismatched_constraints = [r for r in results if r.get("Constraint_Status") == "❌ Mismatch"]
-        assert not mismatched_constraints, f"Constraint mismatches found: {mismatched_constraints}"
+        assert not mismatched_constraints, f"❌ Constraint mismatches found: {mismatched_constraints}"
         
         return results

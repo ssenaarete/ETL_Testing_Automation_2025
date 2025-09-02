@@ -9,11 +9,7 @@
     "matchedStatuses": ["broken"],
     "messageRegex": ".*timeout.*"
   },
-  {
-    "name": "ETL Validation Errors",
-    "matchedStatuses": ["failed"],
-    "messageRegex": ".*Row count mismatch.*"
-  },
+
   {
     "name": "Configuration Issues",
     "matchedStatuses": ["broken"],

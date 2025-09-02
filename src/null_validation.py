@@ -18,8 +18,12 @@ class NullValidation:
         # Use the sheet loaded in __init__ based on selected DB
         df = self.df.copy()
 
-        # Filter only Business Key = Y
-        df = df[df["Business Key"].str.upper() == "Y"]
+        # # Filter only Business Key = Y
+        # df = df[df["Business Key"].str.upper() == "Y"]
+
+        # ✅ Keep only rows where constraints contain "Composite Key"
+        df["Constraints"] = df["Constraints"].fillna("").str.lower()
+        df = df[df["Constraints"].str.contains("composite key")]
 
 
         def get_scalar(result):

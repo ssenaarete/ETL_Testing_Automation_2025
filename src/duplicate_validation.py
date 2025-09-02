@@ -16,7 +16,11 @@ class DuplicateValidation:
         df = self.df.copy()
 
         # Filter only Business Key = Y
-        df = df[df["Business Key"].str.upper() == "Y"]
+        # df = df[df["Business Key"].str.upper() == "Y"]
+
+         # ✅ Keep only rows where constraints contain "Composite Key"
+        df["Constraints"] = df["Constraints"].fillna("").str.lower()
+        df = df[df["Constraints"].str.contains("composite key")]
 
         # Group by table and merge all Y columns into a list
         grouped = df.groupby("table_name")["column_name"].apply(list).reset_index()

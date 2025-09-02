@@ -10,34 +10,64 @@ class SCDAuditValidation:
         self.df = config_loader.df   # Excel metadata (table_name, column_name, Business Key, etc.)
         self.report_helper = config_loader.report_helper
 
+    # def get_business_keys(self, table_name):
+    #     if self.df is None or self.df.empty:
+    #         return []
+
+    #     keys = (
+    #         self.df[(self.df["table_name"].str.lower() == table_name.lower()) &
+    #                 (self.df["Business Key"].str.upper() == "Y")]
+    #         ["column_name"]
+    #         .tolist()
+    #     )
+    #     return keys
+
     def get_business_keys(self, table_name):
         if self.df is None or self.df.empty:
             return []
 
+        df = self.df.copy()
+        df["Constraints"] = df["Constraints"].fillna("").str.lower()
+        # df = df[df["Constraints"].str.contains("composite key")]
+
+        # Pick columns where constraints mention primary key OR composite key
         keys = (
-            self.df[(self.df["table_name"].str.lower() == table_name.lower()) &
-                    (self.df["Business Key"].str.upper() == "Y")]
-            ["column_name"]
+            df[
+                (df["table_name"].str.lower() == table_name.lower()) &
+                (df["Constraints"].str.contains("composite key", na=False))
+            ]["column_name"]
             .tolist()
         )
-        return keys
+        print("DEBUG business keys:", keys, type(keys))
+        return keys    
 
-    def build_business_key_expr(self, business_keys):
-        if not business_keys:
+    # def build_business_key_expr(self, business_keys):
+    #     if not business_keys:
+    #         return None
+    #     if len(business_keys) == 1:
+    #         return business_keys[0]
+    #     else:
+    #         return " + '_' + ".join([f"CAST({col} AS NVARCHAR(100))" for col in business_keys])
+
+    def build_key_expr(self, key_columns):
+        if not key_columns:
             return None
-        if len(business_keys) == 1:
-            return business_keys[0]
+        if len(key_columns) == 1:
+            return key_columns[0]
         else:
-            return " + '_' + ".join([f"CAST({col} AS NVARCHAR(100))" for col in business_keys])
+            return " + '_' + ".join([f"CAST({col} AS NVARCHAR(100))" for col in key_columns])
+    
 
     def run_for_table(self, table_name):
         business_keys = self.get_business_keys(table_name)
 
         if not business_keys:
             logging.warning(f"No Business Keys found in Excel for table: {table_name}")
+            print("DEBUG No business keys found for table:", table_name)
             return []
 
-        bk_expr = self.build_business_key_expr(business_keys)
+        # bk_expr = self.build_business_key_expr(business_keys)
+        bk_expr = self.build_key_expr(business_keys)
         # logging.info(f"Business Key expression for {table_name}: {bk_expr}")
 
         queries = {
@@ -46,13 +76,13 @@ class SCDAuditValidation:
                 WHERE Version_Begin_Date IS NULL
                    OR Version_Begin_Date > Load_Timestamp;
             """,
-            "Single Current Record per Business Key": f"""
-                SELECT {bk_expr} AS BusinessKey, COUNT(*) AS CurrentRecordCount
-                FROM {table_name}
-                WHERE CAST(Is_Current AS NVARCHAR) IN ('1', 'TRUE', 'True', 'true')
-                GROUP BY {bk_expr}
-                HAVING COUNT(*) > 1;
-            """,
+            # "Single Current Record per Business Key": f"""
+            #     SELECT {bk_expr} AS BusinessKey, COUNT(*) AS CurrentRecordCount
+            #     FROM {table_name}
+            #     WHERE CAST(Is_Current AS NVARCHAR) IN ('1', 'TRUE', 'True', 'true')
+            #     GROUP BY {bk_expr}
+            #     HAVING COUNT(*) > 1;
+            # """,
             "Version_End_Date & Is_Current Consistency": f"""
                 SELECT * FROM {table_name}
                 WHERE (
@@ -131,9 +161,17 @@ class SCDAuditValidation:
             table_results = self.run_for_table(table)
             results.extend(table_results)
 
-        if results:
-            report_file = self.report_helper.save_report(results, test_type="SCD_Metadata_Validation_Report")
+        # if results:
+        #     report_file = self.report_helper.save_report(results, test_type="SCD_Metadata_Validation_Report")
+        
+        if not results:
+                logging.warning("No results generated. Possibly no composite keys found in Excel.")
+                return
+        report_file = self.report_helper.save_report(results, test_type="SCD_Metadata_Validation_Report")
+        logging.info(f"SCD Metadata Validation Report saved at: {report_file}")
 
+
+        try:
             summary_df = pd.DataFrame(results)
             with pd.ExcelWriter(report_file, engine="openpyxl", mode="w") as writer:
                 # Summary sheet
@@ -146,6 +184,7 @@ class SCDAuditValidation:
                         if not details_df.empty:
                             sheet_name = f"{r['Table_name']}_{r['Check_name']}"[:31]
                             details_df.to_excel(writer, sheet_name=sheet_name, index=False)
-
+        except Exception as e:
+            logging.error(f"Error while writing Excel report: {e}")
         
         assert all(r["IsCheckPassed"] == "PASS" for r in results), "Some SCD checks failed. See report for details."

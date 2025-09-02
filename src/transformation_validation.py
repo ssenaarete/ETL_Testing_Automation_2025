@@ -98,4 +98,4 @@ class TransformationValidation:
             logging.info(f"Mismatches exported to new worksheet in: {report_file}")
 
         # ✅ Fail test only at the end (after report generation)
-        assert all(r["Status"] == "PASS" for r in results), "Some transformation checks failed. See report for details."
+        assert all(r["Status"] == "PASS" for r in results), "❌ Some transformation checks failed. See report for details."

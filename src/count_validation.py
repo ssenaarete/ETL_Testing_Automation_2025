@@ -68,4 +68,4 @@ class CountValidation:
         # report_helper.print_validation_report_count(results)
 
         failed = [r for r in results if r["Status"] == "FAIL"]
-        assert not failed, f"Row count mismatches found: {failed}"
+        assert not failed, f"❌ Row count mismatches found: {failed}"
