@@ -332,3 +332,27 @@ class ReportHelper:
         print("GARBAGE VALUE VALIDATION REPORT")
         print("=" * 80)
         print(tabulate(table_data, headers=headers, tablefmt="grid"))
+
+    
+    def print_validation_report_Referential_Intergrity_Validation(self, results, check_type):
+        """Pretty print Garbage value validation results in terminal."""
+        table_data = []
+        for row in results:
+            table_data.append([
+                row.get("Database", ""),
+                row.get("Parent_Table", ""),
+                row.get("Parent_Column", ""),
+                row.get("Child_Table", ""),
+                row.get("Child_Column", ""),
+                row.get("Invalid_Count"),
+                row.get("IsCheckPassed")
+            ])
+        
+        headers = ["Database_Name", "Parent_Table","Parent_Column","Child_Table","Child_Column","Invalid_Count", "IsCheckPassed"]
+
+         # ✅ Ensure wide columns (so text like mismatches is fully visible)
+        tabulate.PRESERVE_WHITESPACE = True
+        print("\n" + "=" * 80)
+        print("REFERENTIAL INTEGRITY VALIDATION REPORT")
+        print("=" * 80)
+        print(tabulate(table_data, headers=headers, tablefmt="grid"))

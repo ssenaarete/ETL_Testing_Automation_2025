@@ -16,6 +16,7 @@ from src.other_validation import OtherValidation
 from src.scd_metadata_field_validation import SCDAuditValidation
 from src.scd_validation_cross_env import SCD_Validation_SourceToStage, SCD_Validation_StageToTarget
 from src.transformation_validation import TransformationValidation
+from src.Referential_Integrity_validation import ReferentialIntegrity_Validation
 
 log = logging.getLogger(__name__)
 
@@ -137,3 +138,9 @@ def test_scd_StoT_validation(stage_db, target_db, report_helper):
 def test_transformation_sourceTotarget_validation(source_db, target_db, report_helper):
     validator = TransformationValidation()
     validator.run(source_db, target_db, report_helper)
+
+@pytest.mark.skipif(not should_run("Referential_Integrity_validation"), reason="Marked N in Excel")
+@pytest.mark.not_for_source
+def test_ReferentialIntegrity_validation(config_loader):
+    validator = ReferentialIntegrity_Validation(config_loader)
+    validator.run()
