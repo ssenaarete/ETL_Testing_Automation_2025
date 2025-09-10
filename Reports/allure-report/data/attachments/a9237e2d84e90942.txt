@@ -1,0 +1,4 @@
+Common columns for source_doctors ↔ stage_doctors: [phone_number], [last_name], [doctor_id], [specialty], [email], [first_name]
+Common columns for source_patients ↔ stage_patients: [phone_number], [last_name], [date_of_birth], [first_name], [gender], [address], [patient_id], [email], [primary_doctor_id]
+Saving report to: Reports\SCD_Data_Check_Source_to_Stage_20250909_171541.xlsx
+Report saved successfully.

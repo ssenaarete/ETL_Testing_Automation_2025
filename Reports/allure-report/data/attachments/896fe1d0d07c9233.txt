@@ -9,6 +9,6 @@ Executing Source Query: SELECT
         END AS age
 FROM [SOURCE_DB].[dbo].[source_patients];
 Executing Target Query:   SELECT  patient_id,age   FROM [TARGET_DB].[dbo].[target_patients]
-Saving report to: Reports\Transformation_Logic_check_20250904_145424.xlsx
+Saving report to: Reports\Transformation_Logic_check_20250909_171541.xlsx
 Report saved successfully.
-DEBUG: report_file returned = Reports\Transformation_Logic_check_20250904_145424.xlsx
+DEBUG: report_file returned = Reports\Transformation_Logic_check_20250909_171541.xlsx

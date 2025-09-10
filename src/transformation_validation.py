@@ -78,7 +78,7 @@ class TransformationValidation:
                 # "Transformation Name": self.transformation_name,  # ✅ added transformation name
                 "Transformation Name": f"{columns}_Transformation",  # ✅ added transformation name
                 "Column_Name": columns,   # <-- keep column name in report
-                "Mismatches": "Mismatche" if mismatches else "Matched",
+                "Mismatches": "Mismatch" if mismatches else "Matched",
                 "Status": status
             })
 
