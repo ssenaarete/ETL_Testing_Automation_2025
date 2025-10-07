@@ -76,7 +76,16 @@ class DBHelper:
         except Exception as e:
             logging.error(f"❌ Error executing query '{query}': {e}")
             raise
-        
+
+    def execute_non_query(self, query):
+        """Executes a query that does not return rows (INSERT/UPDATE/EXEC)."""
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute(query)
+            self.conn.commit()
+        finally:
+            cursor.close()
+              
 
     def close(self):
         if self.conn:

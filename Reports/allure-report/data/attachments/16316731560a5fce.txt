@@ -1,0 +1,17 @@
+source_doctors.doctor_id → Issue Count: 0
+source_doctors.first_name → Issue Count: 0
+source_doctors.last_name → Issue Count: 0
+source_doctors.specialty → Issue Count: 0
+source_doctors.phone_number → Issue Count: 0
+source_doctors.email → Issue Count: 0
+source_patients.patient_id → Issue Count: 0
+source_patients.first_name → Issue Count: 0
+source_patients.last_name → Issue Count: 0
+source_patients.date_of_birth → Issue Count: 0
+source_patients.gender → Issue Count: 0
+source_patients.address → Issue Count: 0
+source_patients.phone_number → Issue Count: 0
+source_patients.email → Issue Count: 0
+source_patients.primary_doctor_id → Issue Count: 0
+Saving report to: Reports\Other_Check_20250929_135137.xlsx
+Report saved successfully.

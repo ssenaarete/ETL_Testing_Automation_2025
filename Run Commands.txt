@@ -18,6 +18,8 @@ pytest tests/test_datatype_constraints_validation.py::test_Datatype_constraint_v
 
 pytest tests/test_transformation_validation.py::test_transformation_sourceTotarget_validation --db=SOURCEDB
 
+pytest tests/test_referential_integrity_validation.py::test_ReferentialIntegrity_validation --db=TARGETDB
+
 
 --For all validations
 pytest -v tests/test_smoke_suite.py --db SOURCEDB

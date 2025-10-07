@@ -1,6 +1,5 @@
 import logging
 import pandas as pd
-import configparser
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 

@@ -1,0 +1,3 @@
+DEBUG: Columns in Excel → ['source_table', 'stage_table', 'target_table', 'target_view', 'deleted_table']
+Saving report to: Reports\Count_Check_20250929_135133.xlsx
+Report saved successfully.

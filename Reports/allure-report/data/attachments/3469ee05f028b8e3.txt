@@ -1,0 +1,11 @@
+[1m[31mERROR   [0m src.readd_record_validation:readd_record_validation.py:102 ❌ Re-added record validation failed: Execution failed on sql '
+                    SELECT D.*, S.*, T.Is_Current, T.Version_Begin_Date, T.Version_End_Date
+                    FROM EX_INNOV_RISK_target_patients_Daily_DELETED D
+                    INNER JOIN SOURCE_db.dbo.source_patients S
+                      ON S.patient_id=D.patient_id
+                    INNER JOIN target_patients T
+                      ON T.patient_id=D.patient_id
+                    WHERE (CAST(T.Is_Current AS VARCHAR) = '1' OR CAST(T.Is_Current AS VARCHAR) = 'TRUE'  )
+                       AND (CAST(T.Version_Begin_Date AS DATE) <> CAST(GETDATE() AS DATE))
+                       AND (T.Version_End_Date NOT IN ('3000-12-31') AND T.Version_End_Date IS NOT NULL)
+                ': ('42S02', "[42S02] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid object name 'EX_INNOV_RISK_target_patients_Daily_DELETED'. (208) (SQLExecDirectW)")

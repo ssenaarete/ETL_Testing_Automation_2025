@@ -1,0 +1,17 @@
+source_doctors.doctor_id → Garbage Value Count: 0
+source_doctors.first_name → Garbage Value Count: 0
+source_doctors.last_name → Garbage Value Count: 0
+source_doctors.specialty → Garbage Value Count: 0
+source_doctors.phone_number → Garbage Value Count: 0
+source_doctors.email → Garbage Value Count: 0
+source_patients.patient_id → Garbage Value Count: 0
+source_patients.first_name → Garbage Value Count: 0
+source_patients.last_name → Garbage Value Count: 0
+source_patients.date_of_birth → Garbage Value Count: 0
+source_patients.gender → Garbage Value Count: 0
+source_patients.address → Garbage Value Count: 77
+source_patients.phone_number → Garbage Value Count: 0
+source_patients.email → Garbage Value Count: 0
+source_patients.primary_doctor_id → Garbage Value Count: 0
+Saving report to: Reports\Garbage_Value_Check_20250929_135137.xlsx
+Report saved successfully.

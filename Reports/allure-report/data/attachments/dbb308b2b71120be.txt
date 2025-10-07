@@ -1,0 +1,3 @@
+[33mWARNING [0m src.Datatype_constraint_validation:Datatype_constraint_validation.py:37 Skipping 'COMPOSITE KEY' from Excel constraints: PRIMARY KEY, COMPOSITE KEY
+[33mWARNING [0m src.Datatype_constraint_validation:Datatype_constraint_validation.py:37 Skipping 'COMPOSITE KEY' from Excel constraints: COMPOSITE KEY
+[33mWARNING [0m src.Datatype_constraint_validation:Datatype_constraint_validation.py:37 Skipping 'COMPOSITE KEY' from Excel constraints: PRIMARY KEY, COMPOSITE KEY

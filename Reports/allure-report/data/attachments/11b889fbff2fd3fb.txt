@@ -1,4 +1,0 @@
-Common columns for stage_doctors ↔ target_doctors: [Is_Current], [phone_number], [last_name], [specialty], [Version_Begin_Date], [doctor_id], [Version_End_Date], [email], [first_name]
-Common columns for stage_patients ↔ target_patients: [Is_Current], [phone_number], [last_name], [date_of_birth], [Version_Begin_Date], [first_name], [gender], [address], [Version_End_Date], [patient_id], [email], [primary_doctor_id]
-Saving report to: Reports\SCD_Data_Check_Stage_to_Target_20250909_171541.xlsx
-Report saved successfully.

@@ -17,6 +17,15 @@ from src.scd_metadata_field_validation import SCDAuditValidation
 from src.scd_validation_cross_env import SCD_Validation_SourceToStage, SCD_Validation_StageToTarget
 from src.transformation_validation import TransformationValidation
 from src.Referential_Integrity_validation import ReferentialIntegrity_Validation
+from src.Check_column_order import ColumnNameValidation
+from src.data_precision_validation import DataPrecisionValidation
+from src.exclusion_etl_batch_columns_in_views import ExclusionETLBatchColumnsInViews
+from src.Job_Run_validation import JobExecutionValidation
+from src.ETL_log_table_validations import ETLLog_Validation
+from src.ETLProcess_vs_Details_log_validation import Process_vs_Detail_log_Validation
+from src.deleted_vs_source_validation import DeletedVsSource_Validation
+from src.deleted_vs_target_validation import DeletedVsTarget_Validation
+from src.readd_record_validation import ReAddedRecords_Validation
 
 log = logging.getLogger(__name__)
 
@@ -93,6 +102,12 @@ def test_Datatype_constraint_validation(config_loader):
     validator = DataTypeValidation(config_loader)
     validator.run()
 
+@pytest.mark.skipif(not should_run("Referential_Integrity_validation"), reason="Marked N in Excel")
+@pytest.mark.not_for_source
+def test_ReferentialIntegrity_validation(config_loader):
+    validator = ReferentialIntegrity_Validation(config_loader)
+    validator.run()
+
 @pytest.mark.skipif(not should_run("date_field_validation"), reason="Marked N in Excel")
 def test_Date_field_validation(config_loader):
     validator = DateFieldValidation(config_loader)
@@ -139,8 +154,52 @@ def test_transformation_sourceTotarget_validation(source_db, target_db, report_h
     validator = TransformationValidation()
     validator.run(source_db, target_db, report_helper)
 
-@pytest.mark.skipif(not should_run("Referential_Integrity_validation"), reason="Marked N in Excel")
+@pytest.mark.skipif(not should_run("Check_Column_order"), reason="Marked N in Excel")
+def test_check_column_order_validation(source_db, target_db, report_helper):
+    validator = ColumnNameValidation()
+    validator.run(source_db, target_db, report_helper)
+
+@pytest.mark.skipif(not should_run("Data_Precision_validation"), reason="Marked N in Excel")
+def test_data_precision_validation(config_loader):
+    validator = DataPrecisionValidation(config_loader)
+    validator.run()
+
+@pytest.mark.skipif(not should_run("ETL_Batch_Column_Exclusion_validation"), reason="Marked N in Excel")
 @pytest.mark.not_for_source
-def test_ReferentialIntegrity_validation(config_loader):
-    validator = ReferentialIntegrity_Validation(config_loader)
+def test_exclusion_of_etl_batch_columns_in_views(config_loader):
+    validator = ExclusionETLBatchColumnsInViews(config_loader)
+    validator.run()
+
+@pytest.mark.skipif(not should_run("Job_Run_validation"), reason="Marked N in Excel")
+@pytest.mark.not_for_source
+def test_Job_Execution_validation(config_loader):
+    validator = JobExecutionValidation(config_loader)
+    validator.run()
+
+@pytest.mark.skipif(not should_run("ETL_Log_Table_validation"), reason="Marked N in Excel")
+@pytest.mark.not_for_source
+def test_ETLLog_Table_validation(config_loader):
+    validator = ETLLog_Validation(config_loader)
+    validator.run()
+
+@pytest.mark.skipif(not should_run("ETL_Process_VS_Details_validation"), reason="Marked N in Excel")
+@pytest.mark.not_for_source
+def test_ETLProcess_vs_Details_log_validation(config_loader):
+    validator = Process_vs_Detail_log_Validation(config_loader)
+    validator.run()
+
+@pytest.mark.skipif(not should_run("DeletedVsTarget_validation"), reason="Marked N in Excel")
+@pytest.mark.not_for_source
+def test_deletedVsTarget_validation(config_loader):
+    validator = DeletedVsTarget_Validation(config_loader)
+    validator.run()
+
+@pytest.mark.skipif(not should_run("DeletedVsSource_validation"), reason="Marked N in Excel")
+def test_DeletedVSSource_validation(config_loader):
+    validator = DeletedVsSource_Validation(config_loader)
+    validator.run()
+
+@pytest.mark.skipif(not should_run("Readd_Record_validation"), reason="Marked N in Excel")
+def test_ReaddRecords_validation(config_loader):
+    validator = ReAddedRecords_Validation(config_loader)
     validator.run()
