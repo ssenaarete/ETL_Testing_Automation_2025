@@ -1,0 +1,11 @@
+source_doctors.doctor_id → Garbage Value Count: 0
+source_doctors.first_name → Garbage Value Count: 0
+source_doctors.last_name → Garbage Value Count: 0
+source_doctors.specialty → Garbage Value Count: 0
+source_doctors.phone_number → Garbage Value Count: 359871
+source_doctors.email → Garbage Value Count: 0
+source_patients.patient_id → Garbage Value Count: 0
+source_patients.first_name → Garbage Value Count: 0
+source_patients.last_name → Garbage Value Count: 0
+source_patients.date_of_birth → Garbage Value Count: 0
+source_patients.gender → Garbage Value Count: 0

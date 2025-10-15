@@ -73,9 +73,9 @@ def should_run(test_name: str) -> bool:
 
 # --- Tests -------------------------------------------------------------------
 @pytest.mark.skipif(not should_run("count_validation"), reason="Marked N in Excel")
-def test_count_validation(source_db, stage_db, target_db,report_helper):
-    cv = CountValidation()
-    cv.run(source_db, stage_db, target_db,report_helper)
+def test_count_validation(config_loader):
+    cv = CountValidation(config_loader)
+    cv.run()
 
 @pytest.mark.skipif(not should_run("data_completeness_validation_SourceToStage"), reason="Marked N in Excel")
 def test_datacompleteness_StoS_validation(source_db, stage_db,report_helper):

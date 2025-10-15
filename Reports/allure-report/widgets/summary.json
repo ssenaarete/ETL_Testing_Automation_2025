@@ -1,1 +1,1 @@
-{"reportName":"ETL Smoke Suite","testRuns":[],"statistic":{"failed":8,"broken":0,"skipped":8,"passed":9,"unknown":0,"total":25},"time":{"start":1759234216685,"stop":1759234228343,"duration":11658,"minDuration":0,"maxDuration":2156,"sumDuration":8576}}
+{"reportName":"ETL Smoke Suite","testRuns":[],"statistic":{"failed":6,"broken":1,"skipped":8,"passed":10,"unknown":0,"total":25},"time":{"start":1760349436237,"stop":1760349528158,"duration":91921,"minDuration":0,"maxDuration":41991,"sumDuration":91094}}

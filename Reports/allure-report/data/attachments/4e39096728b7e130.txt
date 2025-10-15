@@ -1,0 +1,6 @@
+[31m[1mERROR   [0m root:deleted_vs_source_validation.py:97 ❌ Deleted record validation failed: Execution failed on sql '
+                    SELECT D.*
+                    FROM TARGET_DB.dbo.EX_INNOV_RISK_target_patients_Daily_DELETED D
+                    INNER JOIN source_patients S
+                      ON S.patient_id=D.patient_id
+                ': ('42S02', "[42S02] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid object name 'source_patients'. (208) (SQLExecDirectW)")

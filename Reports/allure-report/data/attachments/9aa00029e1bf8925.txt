@@ -1,0 +1,32 @@
+Saving report to: Reports\Job_Execution_Validation_20251007_184010.xlsx
+Report saved successfully.
+🔍 Capturing job execution log from msdb... -  
+                    WITH LatestRun AS (
+                    SELECT 
+                        j.name AS JobName,
+                        h.run_date,
+                        h.run_time,
+                        ROW_NUMBER() OVER (PARTITION BY j.job_id ORDER BY h.run_date DESC, h.run_time DESC) AS rn,
+                        CASE h.run_status
+                            WHEN 0 THEN 'Failed'
+                            WHEN 1 THEN 'Succeeded'
+                            WHEN 2 THEN 'Retry'
+                            WHEN 3 THEN 'Canceled'
+                            WHEN 4 THEN 'In Progress'
+                        END AS RunStatus,
+                        h.message
+                    FROM msdb.dbo.sysjobs j
+                    JOIN msdb.dbo.sysjobhistory h 
+                        ON j.job_id = h.job_id
+                    WHERE h.step_id = 0
+                    AND j.name = 'Execute_SP'
+                )
+                SELECT JobName, run_date, run_time, RunStatus,message
+                FROM LatestRun
+                WHERE rn = 1
+                ORDER BY JobName;
+            
+DEBUG - fetchall result: [('Execute_SP', 20251007, 184000, 'Succeeded', 'The job succeeded.  The Job was invoked by Schedule 9 (Daily_Run).  The last step to run was step 1 (ExecuteSP).')]
+Row 1: ('Execute_SP', 20251007, 184000, 'Succeeded', 'The job succeeded.  The Job was invoked by Schedule 9 (Daily_Run).  The last step to run was step 1 (ExecuteSP).') | len=5 | type=<class 'pyodbc.Row'>
+DEBUG - Raw result from DB: [('Execute_SP', 20251007, 184000, 'Succeeded', 'The job succeeded.  The Job was invoked by Schedule 9 (Daily_Run).  The last step to run was step 1 (ExecuteSP).')]
+DEBUG - Columns from DB: ['JobName', 'run_date', 'run_time', 'RunStatus', 'message']

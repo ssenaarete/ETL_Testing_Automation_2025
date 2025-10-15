@@ -1,162 +1,154 @@
 import logging
 import pandas as pd
-import configparser
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-
-class DC_Validation_Helper:
-    @staticmethod
-    def compare_metadata(src_meta, tgt_meta, source_table, target_table, source_db, target_db, results, failed_checks):
+class CountValidation:
+    def __init__(self, config_loader):
         """
-        Compare columns between two environments (Source vs Stage/Target).
-        Checks for:
-        1. Missing columns
-        2. Extra columns
-        3. Data type & constraint mismatches
+        Initialize CountValidation with shared config_loader.
+        This ensures consistent access to DB connections, config, and report helper.
         """
+        self.config_loader = config_loader
+        self.db = config_loader.db
+        self.report_helper = config_loader.report_helper
 
-        src_cols = set(src_meta.keys())
-        tgt_cols = set(tgt_meta.keys())
+        # Load Excel sheet from config
+        try:
+            excel_file_path = config_loader.config.get("PATHS", "excel_file_path")
+            self.excel_df = pd.read_excel(
+                excel_file_path,
+                sheet_name="Table_Mapping",   # ✅ Count check sheet
+                engine="openpyxl"
+            )
+            logging.info(f"✅ Loaded Excel file successfully: {excel_file_path}")
+        except Exception as e:
+            logging.error(f"❌ Could not load 'Table_Mapping' sheet: {e}")
+            self.excel_df = pd.DataFrame()  # fallback to empty df
 
-        # --- Missing Columns in Target ---
-        missing_in_tgt = src_cols - tgt_cols
-        for col in missing_in_tgt:
-            results.append({
-                "Database": f"{source_db.database} vs {target_db.database}",
-                "Table_Excel": f"{source_table} vs {target_table}",
-                "Column_Excel": col,
-                "DataType_Source": src_meta[col]["DATA_TYPE"].upper(),
-                "Constraint_Source": "NULL" if src_meta[col]["IS_NULLABLE"] == "YES" else "NOT NULL",
-                "DataType_Target": "❌ MISSING",
-                "Constraint_Target": "❌ MISSING",
-                "Status": "❌ FAIL (Column missing in Target)"
-            })
-            failed_checks.append(f"Column {col} in {source_table} missing in {target_table}")
+    def run(self):
+        """
+        Performs count validation across Source → Stage → Target tables.
+        If stage_table is blank, bypass stage validation.
+        Also logs mismatched records in a separate sheet.
+        """
+        if self.excel_df.empty:
+            logging.warning("⚠️ Skipping Count Validation as Excel sheet is empty or missing.")
+            return
 
-        # --- Extra Columns in Target ---
-        extra_in_tgt = tgt_cols - src_cols
-        for col in extra_in_tgt:
-            results.append({
-                "Database": f"{source_db.database} vs {target_db.database}",
-                "Table_Excel": f"{source_table} vs {target_table}",
-                "Column_Excel": col,
-                "DataType_Source": "❌ MISSING",
-                "Constraint_Source": "❌ MISSING",
-                "DataType_Target": tgt_meta[col]["DATA_TYPE"].upper(),
-                "Constraint_Target": "NULL" if tgt_meta[col]["IS_NULLABLE"] == "YES" else "NOT NULL",
-                "Status": "❌ FAIL (Extra column in Target)"
-            })
-            failed_checks.append(f"Extra column {col} in {target_table} not present in {source_table}")
+        df = self.excel_df
+        logging.info(f"Excel Columns Found: {df.columns.tolist()}")
+        print("DEBUG: Columns in Excel →", df.columns.tolist())
 
-        # --- Compare Common Columns ---
-        common_cols = src_cols.intersection(tgt_cols)
-        for col in common_cols:
-            src_type = src_meta[col]["DATA_TYPE"].upper()
-            tgt_type = tgt_meta[col]["DATA_TYPE"].upper()
-            src_const = "NULL" if src_meta[col]["IS_NULLABLE"] == "YES" else "NOT NULL"
-            tgt_const = "NULL" if tgt_meta[col]["IS_NULLABLE"] == "YES" else "NOT NULL"
-
-            issue_1 = "Matched" if src_type == tgt_type else f"Datatype mismatch: {src_type} vs {tgt_type}"
-            issue_2 = "Matched" if src_const == tgt_const else f"Constraint mismatch: {src_const} vs {tgt_const}"
-
-            status = "✅ PASS" if issue_1 == "Matched" and issue_2 == "Matched" else \
-                     f"❌ FAIL ({'; '.join([i for i in [issue_1, issue_2] if i != 'Matched'])})"
-
-            results.append({
-                "Database": f"{source_db.database} vs {target_db.database}",
-                "Table_Excel": f"{source_table} vs {target_table}",
-                "Column_Excel": col,
-                "DataType_Source": src_type,
-                "Constraint_Source": src_const,
-                "DataType_Target": tgt_type,
-                "Constraint_Target": tgt_const,
-                "Status": status
-            })
-
-            if status != "✅ PASS":
-                failed_checks.append(f"Issue in {source_table}.{col}: {status}")
-
-
-class DC_Validation_SourceToStage:
-    def __init__(self, config_path="config.ini"):
-        self.config_path = config_path
-        self.config = configparser.ConfigParser()
-        self.config.read(config_path)
-        self.excel_path = self.config.get("PATHS", "excel_file_path")
-
-    def run(self, source_db, stage_db, report_helper):
-        df = pd.read_excel(self.excel_path, sheet_name="Table_Mapping")
         results = []
-        failed_checks = []
+        mismatch_records = []   # ✅ new list to store mismatched table info
+
+        def normalize(val):
+            """Helper to extract scalar value from nested tuples/lists."""
+            if isinstance(val, list) and val and isinstance(val[0], (tuple, list)):
+                return val[0][0]
+            elif isinstance(val, (list, tuple)) and val:
+                return val[0]
+            return val
 
         for _, row in df.iterrows():
-            source_table = row["source_table"]
-            stage_table = row["stage_table"]
+            source_table = row.get("source_table")
+            stage_table = row.get("stage_table")
+            target_table = row.get("target_table")
 
-            # Fetch metadata
-            src_meta = source_db.execute_query(f"""
-                SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
-                FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_NAME = '{source_table}'
-            """)
-            stg_meta = stage_db.execute_query(f"""
-                SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
-                FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_NAME = '{stage_table}'
-            """)
+            # ✅ Check if Stage table is blank or NaN
+            stage_exists = pd.notna(stage_table) and str(stage_table).strip() != ""
 
-            src_meta = {r[0]: {"DATA_TYPE": r[1], "IS_NULLABLE": r[2]} for r in src_meta}
-            stg_meta = {r[0]: {"DATA_TYPE": r[1], "IS_NULLABLE": r[2]} for r in stg_meta}
+            if stage_exists:
+                logging.info(f"🔍 Validating counts for: {source_table} ↔ {stage_table} ↔ {target_table}")
+            else:
+                logging.info(f"🔍 Validating counts for: {source_table} ↔ {target_table} (Stage skipped)")
 
-            # Compare metadata
-            DC_Validation_Helper.compare_metadata(src_meta, stg_meta,
-                                                  source_table, stage_table,
-                                                  source_db, stage_db,
-                                                  results, failed_checks)
+            try:
+                # Build count queries
+                queries = {
+                    "Source": f"SELECT COUNT(*) FROM SOURCE_DB.DBO.{source_table}",
+                    "Target": f"SELECT COUNT(*) FROM TARGET_DB.DBO.{target_table}"
+                }
 
-        # Save & assert
-        report_helper.save_report(results, test_type="DC_Source_to_Stage_Check")
-        assert not failed_checks, "\n".join(failed_checks)
+                if stage_exists:
+                    queries["Stage"] = f"SELECT COUNT(*) FROM STAGE_DB.DBO.{stage_table}"
 
+                # Execute and normalize
+                counts = {
+                    "Source": normalize(self.db.execute_query(queries["Source"])),
+                    "Target": normalize(self.db.execute_query(queries["Target"]))
+                }
 
-class DC_Validation_SourceToTarget:
-    def __init__(self, config_path="config.ini"):
-        self.config_path = config_path
-        self.config = configparser.ConfigParser()
-        self.config.read(config_path)
-        self.excel_path = self.config.get("PATHS", "excel_file_path")
+                if stage_exists:
+                    counts["Stage"] = normalize(self.db.execute_query(queries["Stage"]))
+                else:
+                    counts["Stage"] = "N/A"
 
-    def run(self, source_db, target_db, report_helper):
-        df = pd.read_excel(self.excel_path, sheet_name="Table_Mapping")
-        results = []
-        failed_checks = []
+                # ✅ Status logic changes when stage is missing
+                if stage_exists:
+                    status = (
+                        "PASS" if (counts["Source"] == counts["Stage"] == counts["Target"])
+                        else "FAIL"
+                    )
+                else:
+                    status = (
+                        "PASS" if counts["Source"] == counts["Target"]
+                        else "FAIL"
+                    )
 
-        for _, row in df.iterrows():
-            source_table = row["source_table"]
-            target_table = row["target_table"]
+                results.append({
+                    "Source_Table": source_table,
+                    "Source_Count": counts["Source"],
+                    "Stage_Table": stage_table if stage_exists else "N/A",
+                    "Stage_Count": counts["Stage"],
+                    "Target_Table": target_table,
+                    "Target_Count": counts["Target"],
+                    "Status": status
+                })
 
-            # Fetch metadata
-            src_meta = source_db.execute_query(f"""
-                SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
-                FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_NAME = '{source_table}'
-            """)
-            tgt_meta = target_db.execute_query(f"""
-                SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
-                FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_NAME = '{target_table}'
-            """)
+                # ✅ Capture mismatches for extra sheet
+                if status == "FAIL":
+                    mismatch_records.append({
+                        "Source_Table": source_table,
+                        "Source_Count": counts["Source"],
+                        "Stage_Table": stage_table if stage_exists else "N/A",
+                        "Stage_Count": counts["Stage"],
+                        "Target_Table": target_table,
+                        "Target_Count": counts["Target"],
+                    })
 
-            src_meta = {r[0]: {"DATA_TYPE": r[1], "IS_NULLABLE": r[2]} for r in src_meta}
-            tgt_meta = {r[0]: {"DATA_TYPE": r[1], "IS_NULLABLE": r[2]} for r in tgt_meta}
+                # Logging summary
+                log_msg = (
+                    f"{source_table}({counts['Source']}) "
+                    + (f"↔ {stage_table}({counts['Stage']}) " if stage_exists else "")
+                    + f"↔ {target_table}({counts['Target']}) → {status}"
+                )
 
-            # Compare metadata
-            DC_Validation_Helper.compare_metadata(src_meta, tgt_meta,
-                                                  source_table, target_table,
-                                                  source_db, target_db,
-                                                  results, failed_checks)
+                if status == "PASS":
+                    logging.info(f"✅ {log_msg}")
+                else:
+                    logging.warning(f"❌ {log_msg}")
 
-        # Save & assert
-        report_helper.save_report(results, test_type="DC_Source_to_Target_Check")
-        assert not failed_checks, "\n".join(failed_checks)
+            except Exception as e:
+                logging.error(f"⚠️ Error validating {source_table}, {stage_table}, {target_table}: {e}")
+                results.append({
+                    "Source_Table": source_table, "Source_Count": None,
+                    "Stage_Table": stage_table, "Stage_Count": None,
+                    "Target_Table": target_table, "Target_Count": None,
+                    "Status": "ERROR"
+                })
+
+        # ✅ Save the main report
+        report_file = self.report_helper.save_report(results, test_type="Count_Check")
+
+        # # ✅ Save mismatch sheet if any
+        # if mismatch_records:
+        #     mismatch_df = pd.DataFrame(mismatch_records)
+        #     with pd.ExcelWriter(report_file, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
+        #         mismatch_df.to_excel(writer, sheet_name="Count_Mismatches", index=False)
+        #     logging.info(f"📄 Mismatch details written to 'Count_Mismatches' sheet in {report_file}")
+
+        # ✅ Fail only at the end
+        failed = [r for r in results if r["Status"] != "PASS"]
+        assert not failed, f"❌ Row count mismatches or errors found. See 'Count_Mismatches' sheet in {report_file}"

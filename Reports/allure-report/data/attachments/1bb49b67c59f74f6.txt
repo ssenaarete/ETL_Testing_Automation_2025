@@ -1,0 +1,4 @@
+DEBUG business keys: ['doctor_id', 'email'] <class 'list'>
+DEBUG business keys: ['patient_id'] <class 'list'>
+Saving report to: Reports\SCD_Metadata_Validation_Report_20251007_183936.xlsx
+Report saved successfully.

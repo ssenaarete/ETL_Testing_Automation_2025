@@ -1,0 +1,26 @@
+target_doctors.doctor_id → Issue Count: 0
+target_doctors.first_name → Issue Count: 0
+target_doctors.last_name → Issue Count: 0
+target_doctors.specialty → Issue Count: 0
+target_doctors.phone_number → Issue Count: 0
+target_doctors.email → Issue Count: 0
+target_doctors.load_timestamp → Issue Count: 0
+target_doctors.Version_Begin_Date → Issue Count: 0
+target_doctors.Version_End_Date → Issue Count: 0
+target_doctors.Is_Current → Issue Count: 0
+target_patients.patient_id → Issue Count: 0
+target_patients.first_name → Issue Count: 0
+target_patients.last_name → Issue Count: 0
+target_patients.date_of_birth → Issue Count: 0
+target_patients.gender → Issue Count: 0
+target_patients.address → Issue Count: 0
+target_patients.phone_number → Issue Count: 0
+target_patients.email → Issue Count: 0
+target_patients.primary_doctor_id → Issue Count: 0
+target_patients.load_timestamp → Issue Count: 0
+target_patients.Version_Begin_Date → Issue Count: 0
+target_patients.Version_End_Date → Issue Count: 0
+target_patients.Is_Current → Issue Count: 0
+target_patients.Age → Issue Count: 0
+Saving report to: Reports\Other_Check_20251007_182839.xlsx
+Report saved successfully.

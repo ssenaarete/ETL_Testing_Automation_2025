@@ -1,0 +1,9 @@
+[31m[1mERROR   [0m root:ETLProcess_vs_Details_log_validation.py:119 ❌ ETL Process vs Detail log validation failed: Execution failed on sql '
+                    SELECT T.*
+                    FROM ETL_Process_Log T
+                    WHERE ProcessLogId IN (
+                        SELECT MAX(ProcessLogId)
+                        FROM ETL_Process_Log
+                        GROUP BY ComponentName
+                    )
+                ': ('42S02', "[42S02] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid object name 'ETL_Process_Log'. (208) (SQLExecDirectW)")

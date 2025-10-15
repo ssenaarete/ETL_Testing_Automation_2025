@@ -1,0 +1,6 @@
+DEBUG composite_key: doctor_id, email <class 'str'>
+target_doctors.doctor_id, email → Duplicate Count: 0
+DEBUG composite_key: patient_id <class 'str'>
+target_patients.patient_id → Duplicate Count: 0
+Saving report to: Reports\Duplicate_Check_20251007_183931.xlsx
+Report saved successfully.

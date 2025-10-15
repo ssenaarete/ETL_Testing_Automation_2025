@@ -11,17 +11,6 @@ class TransformationValidation:
         self.config.read(config_path)
         self.excel_path = self.config.get("PATHS", "excel_file_path")
 
-        # # DB connections
-        # self.db_source = DBHelper.from_config_section(config_path, "SOURCEDB")
-        # self.db_target = DBHelper.from_config_section(config_path, "TARGETDB")
-
-        # self.db_source.connect()
-        # self.db_target.connect()
-
-        # self.report_helper = ReportHelper(config_path)
-
-        # ✅ Ask user for transformation name
-        # self.transformation_name = input("Enter the transformation name (e.g., Age Transformation): ")
 
     def run(self, source_db, target_db, report_helper):
         # Read queries from SOURCEDB sheet
@@ -40,16 +29,13 @@ class TransformationValidation:
             target_query = row.get("Target_Query")
             print(f"Executing Target Query: {target_query}")
 
-            # Execute queries
-            # source_data = self.db_source.execute_query(source_query)
-            # target_data = self.db_target.execute_query(target_query)
-
             source_data = source_db.execute_query(source_query)
             target_data = target_db.execute_query(target_query)
 
             # Convert to dict for row-by-row comparison
             source_dict = {row[0]: row[1] for row in source_data if row[0] is not None}
             target_dict = {row[0]: row[1] for row in target_data if row[0] is not None}
+
 
             mismatches = []
             for key, src_val in source_dict.items():
@@ -60,6 +46,7 @@ class TransformationValidation:
                         "Transformation Name": f"{columns}_Transformation",
                         "Column_Name": columns,
                         # "Key": key,
+                        "Patient_ID": key,
                         "Source_Value": src_val,
                         "Target_Value": "MISSING"
                     })
@@ -69,6 +56,7 @@ class TransformationValidation:
                         "Transformation Name": f"{columns}_Transformation",
                         "Column_Name": columns,
                         # "Key": key,
+                        "Patient_ID": key,
                         "Source_Value": src_val,
                         "Target_Value": tgt_val
                     })

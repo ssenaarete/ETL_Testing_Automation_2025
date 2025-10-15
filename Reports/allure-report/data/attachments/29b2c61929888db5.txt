@@ -1,0 +1,15 @@
+target_doctors.doctor_id → Garbage Value Count: 0
+target_doctors.first_name → Garbage Value Count: 0
+target_doctors.last_name → Garbage Value Count: 0
+target_doctors.specialty → Garbage Value Count: 0
+target_doctors.phone_number → Garbage Value Count: 319855
+target_doctors.email → Garbage Value Count: 0
+target_doctors.load_timestamp → Garbage Value Count: 1000000
+target_doctors.Version_Begin_Date → Garbage Value Count: 0
+target_doctors.Version_End_Date → Garbage Value Count: 0
+target_doctors.Is_Current → Garbage Value Count: 0
+target_patients.patient_id → Garbage Value Count: 0
+target_patients.first_name → Garbage Value Count: 0
+target_patients.last_name → Garbage Value Count: 0
+target_patients.date_of_birth → Garbage Value Count: 0
+target_patients.gender → Garbage Value Count: 0

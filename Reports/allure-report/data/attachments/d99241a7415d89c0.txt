@@ -1,2 +1,0 @@
-Saving report to: Reports\Column_Name_Check_20250930_174025.xlsx
-Report saved successfully.

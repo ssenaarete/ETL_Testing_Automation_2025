@@ -1,0 +1,5 @@
+source_doctors.doctor_id → Null Count: 0
+source_doctors.email → Null Count: 0
+source_patients.patient_id → Null Count: 0
+Saving report to: Reports\Null_Check_20251013_152744.xlsx
+Report saved successfully.

@@ -1,0 +1,5 @@
+Sections found: ['SOURCEDB', 'STAGEDB', 'TARGETDB', 'TARGETDW', 'PATHS']
+Connected using section: TARGETDB
+Loaded data from Excel sheet: TARGETDB
+Saving report to: Reports\DataType_Constraints_Validation_20251007_181415.xlsx
+Report saved successfully.

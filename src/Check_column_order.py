@@ -51,8 +51,8 @@ class ColumnNameValidation:
             invalid_count = len(missing_in_target) + len(missing_in_source)
 
             details = pd.DataFrame({
-                "Missing_in_Source_aginst_Target": [", ".join(missing_in_source)] if missing_in_source else [""],
-                "Missing_in_Target_aginst_Source": [", ".join(missing_in_target)] if missing_in_target else [""],
+                "Missing_in_Source_against_Target": [", ".join(missing_in_source)] if missing_in_source else [""],
+                "Missing_in_Target_against_Source": [", ".join(missing_in_target)] if missing_in_target else [""],
                 "Source_Columns": [", ".join(src_cols)],
                 "Target_Columns": [", ".join(tgt_cols)]
             })

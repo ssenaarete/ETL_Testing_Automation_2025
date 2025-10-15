@@ -1,0 +1,5 @@
+target_doctors.doctor_id → Null Count: 0
+target_doctors.email → Null Count: 0
+target_patients.patient_id → Null Count: 0
+Saving report to: Reports\Null_Check_20251007_183934.xlsx
+Report saved successfully.

@@ -1,0 +1,1 @@
+[31m[1mERROR   [0m root:Job_Run_validation.py:60 ❌ Job failed: Execute_SP | Error: ('42000', "[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Could not find stored procedure 'usp_ETL_Load_Customer'. (2812) (SQLExecDirectW)")

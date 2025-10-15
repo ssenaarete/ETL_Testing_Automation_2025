@@ -1,0 +1,4 @@
+[1m[31mERROR   [0m root:db_helper.py:77 ❌ Error executing query '
+                    SELECT COUNT(*) FROM target_patients
+                    WHERE address LIKE '%[^a-zA-Z0-9@. -]%'
+                ': ('42S22', "[42S22] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'address'. (207) (SQLExecDirectW)")
